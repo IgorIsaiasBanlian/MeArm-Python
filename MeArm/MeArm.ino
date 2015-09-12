@@ -130,10 +130,10 @@ void loop() {
 
 void read_serial_data()
 {
-    int count = 0;
+    int count = 0, i;
     char inchar;
     bool incoming_data = true;
-    float sx, sy, sz, sg;
+    int sx, sy, sz, sg;
 
     digitalWrite(LED, HIGH);
     while (count < 4)/* 0, 1, 2, 3 */
@@ -156,67 +156,120 @@ void read_serial_data()
     }
 
 
-   sx += (float)in_buffer[0];
-   sy += (float)in_buffer[1];
-   sz += (float)in_buffer[2];
-   sg += (float)in_buffer[3];
+   sx = (int)in_buffer[0];
+   sy = (int)in_buffer[1];
+   sz = (int)in_buffer[2];
+   sg = (int)in_buffer[3];
 
-    if(x > MAX_X)
-      x = MAX_X;
-    if(x < MIN_X)
-      x = MIN_X;
+   Serial.print("*Buffer[");
+   Serial.print(0, DEC);
+   Serial.print("] = ");
+   Serial.println(sx);
 
-    if(y > MAX_Y)
-      y = MAX_Y;
-    if(y < MIN_Y)
-      y = MIN_Y;
+   Serial.print("*Buffer[");
+   Serial.print(1, DEC);
+   Serial.print("] = ");
+   Serial.println(sy);
 
-    if(z > MAX_Z)
-      z = MAX_Z;
-    if(z < MIN_Z)
-      z = MIN_Z;
+   Serial.print("*Buffer[");
+   Serial.print(2, DEC);
+   Serial.print("] = ");
+   Serial.println(sz);
 
-    if(g > MAX_G)
-      g = MAX_G;
-    if(g < MIN_G)
-      g = MIN_G;
+   Serial.print("*Buffer[");
+   Serial.print(3, DEC);
+   Serial.print("] = ");
+   Serial.println(sg);
 
+    if(sx > MAX_X)
+      sx = MAX_X;
+    if(sx < MIN_X)
+      sx = MIN_X;
 
-    Serial.print("Buffer[");
+    if(sy > MAX_Y)
+      sy = MAX_Y;
+    if(sy < MIN_Y)
+      sy = MIN_Y;
+
+    if(sz > MAX_Z)
+      sz = MAX_Z;
+    if(sz < MIN_Z)
+      sz = MIN_Z;
+
+    if(sg > MAX_G)
+      sg = MAX_G;
+    if(sg < MIN_G)
+      sg = MIN_G;
+
+    Serial.print("**Buffer[");
     Serial.print(0, DEC);
     Serial.print("] = ");
     Serial.println(sx);
 
-    Serial.print("Buffer[");
+    Serial.print("**Buffer[");
     Serial.print(1, DEC);
     Serial.print("] = ");
     Serial.println(sy);
 
-    Serial.print("Buffer[");
+    Serial.print("**Buffer[");
     Serial.print(2, DEC);
     Serial.print("] = ");
     Serial.println(sz);
 
-    Serial.print("Buffer[");
+    Serial.print("**Buffer[");
     Serial.print(3, DEC);
     Serial.print("] = ");
     Serial.println(sg);
+
+    while((x!=sx) || (y!=sy) || (z!=sz) || (g!=sg))
+    {
+        if(x > sx)
+            x -= 1;
+        else if (x < sx)
+            x += 1;
+
+        if(y > sy)
+            y -= 1;
+        else if (y < sy)
+            y += 1;
+
+        if(z > sz)
+            z -= 1;
+        else if (z < sz)
+            z += 1;
+
+        if(g > sg)
+            g -= 1;
+        else if (g < sg)
+            g += 1;
+
+        elbow.write(x);
+        shoulder.write(y);
+        base.write(z);
+        gripper.write(g);
+
+        delay(50);
+    }
+
+    x = sx;
+    y = sy;
+    z = sz;
+    g = sg;
 
     elbow.write(sx);
     shoulder.write(sy);
     base.write(sz);
     gripper.write(sg);
 
-    x = sx;
-    y = sy;
-    z = sz;
-    g = sg;
     delay(100);
 
     digitalWrite(LED, LOW);
 }
 
 /*
-m^&n
-GQ=x
+ * 109 - 96 - 38 - 110
+ * m^&n
+ *
+ * 71 - 81 - 61 - 120
+ * GQ=x
 */
